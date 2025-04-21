@@ -26,9 +26,20 @@ wss.on("connection", (ws) => {
         }
       }
 
+      // Audio chunk from client ➝ send to admin
       if (data.type === "audio_chunk" && adminSocket && ws === clientSocket) {
         adminSocket.send(JSON.stringify({ type: "audio_chunk", data: data.data }));
       }
+
+      // Control message from admin ➝ send to client
+      if (
+        (data.type === "start_streaming" || data.type === "stop_streaming") &&
+        clientSocket &&
+        ws === adminSocket
+      ) {
+        clientSocket.send(JSON.stringify({ type: data.type }));
+      }
+
     } catch (e) {
       console.error("Invalid message:", message);
     }
